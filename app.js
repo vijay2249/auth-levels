@@ -3,7 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose')
-const encrypt = require('mongoose-encryption');
+// const encrypt = require('mongoose-encryption');
+const md5 = require("md5")
 
 const app = express();
 
@@ -20,8 +21,8 @@ const userSchema = new mongoose.Schema({
   password: String
 })
 
-const key = process.env.KEY
-userSchema.plugin(encrypt, {secret: key, encryptedFields: ['password']})
+// const key = process.env.KEY
+// userSchema.plugin(encrypt, {secret: key, encryptedFields: ['password']})
 
 // User Model creation
 const User = new mongoose.model("auth", userSchema)
@@ -39,7 +40,7 @@ app.route("/register")
   .post((request, response)=>{
     const newUser = new User({
       email: request.body.username,
-      password: request.body.password
+      password: md5(request.body.password)
     })
     newUser.save(function(err){
       if(err)console.log(err);
@@ -57,7 +58,7 @@ app.route("/login")
     User.findOne({email: username}, function(err, result){
       if(err)console.log(err);
       else{
-        if(password === result.password){
+        if(md5(password) === result.password){
           response.render("secrets")
         }else{
           console.log("passwords didnt match");
