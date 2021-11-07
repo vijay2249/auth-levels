@@ -17,10 +17,12 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+
 app.use(session({
   secret: process.env.KEY,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  maxAge: Date.now() + (86400 * 1000)
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -127,6 +129,11 @@ app.route("/login")
   //     }
   //   })
   // })
+
+app.get("/logout", (request, response)=>{
+  request.logout()
+  response.redirect("/")
+})
 
 
 app.listen(process.env.PORT || 3000, function() {
